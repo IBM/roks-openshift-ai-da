@@ -1,0 +1,8 @@
+#can include ibmcloud_api_key value here or in TF_VAR_ibmcloud_api_key environment variable
+cluster_id = "myclustername"
+deploy_pipeline_operator = true
+region = "us-south"
+nvidia-gpu-channel = "v23.9"
+nvidia-gpu-startingcsv = "gpu-operator-certified.v23.9.1"
+nfd-instance-image-version = "v4.13"
+number-gpu-nodes = 2
