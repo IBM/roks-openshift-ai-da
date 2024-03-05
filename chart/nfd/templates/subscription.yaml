@@ -1,0 +1,11 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ .Values.operators.subscription_name }}
+  namespace: {{ .Values.operators.namespace }}
+spec:
+  channel: stable
+  installPlanApproval: Automatic
+  name: nfd
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
