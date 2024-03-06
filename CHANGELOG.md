@@ -39,3 +39,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 ### Fixed
    * Created choices lists for some input variables
+
+## 1.1.4 - 2024-03-06
+### Added
+### Changed
+### Fixed
+   * Fix errors in variables

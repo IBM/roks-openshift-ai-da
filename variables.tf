@@ -15,16 +15,16 @@ variable "region" {
   description = "IBM Cloud region. Use 'ibmcloud regions' to get the list"
   validation {
     condition = anytrue([
-      var.ocp_version == "au_syd",
-      var.ocp_version == "br-sao",
-      var.ocp_version == "ca-tor",
-      var.ocp_version == "eu-de",
-      var.ocp_version == "eu-es",
-      var.ocp_version == "eu-gb",
-      var.ocp_version == "jp-osa",
-      var.ocp_version == "jp-tok",
-      var.ocp_version == "us-east",
-      var.ocp_version == "us-south"
+      var.region == "au_syd",
+      var.region == "br-sao",
+      var.region == "ca-tor",
+      var.region == "eu-de",
+      var.region == "eu-es",
+      var.region == "eu-gb",
+      var.region == "jp-osa",
+      var.region == "jp-tok",
+      var.region == "us-east",
+      var.region == "us-south"
     ])
     error_message = "The specified region is not one of the validated versions."
   }
@@ -47,9 +47,9 @@ variable "ocp-version" {
   description = "Major.minor version of the OCP cluster to provision"
   validation {
     condition = anytrue([
-      var.ocp_version == "4.12",
-      var.ocp_version == "4.13",
-      var.ocp_version == "4.14"
+      var.ocp-version == "4.12",
+      var.ocp-version == "4.13",
+      var.ocp-version == "4.14"
     ])
     error_message = "The specified ocp_version is not one of the validated versions."
   }
