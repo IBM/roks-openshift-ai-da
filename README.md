@@ -2,7 +2,21 @@
 The repository holds the terraform code for the ROKS OpenShift AI Deployable Architecture
 
 The goal of this Deployable Architecture is to quickly create an environment to get hands on with Red Hat OpenShift AI using a ROKS cluster in IBM Cloud. The DA itself will create a simple 1 zone cluster for the user if desired, or you can pre-create the cluster. The DA will then install the OpenShift AI stack.
+<br/><br/>
+As mentioned above, the cluster that will be created will be a single zone cluster. It will be created in the "1" zone in the region selected. A new VPC is created with a new default subnet created in the first zone. Attached to that subnet is a public gatway. The cluster is created in this new VPC.
+<br/><br/>
+You must select the machine-type of the ROKS cluster worker node. This requires that you choose a machine_type that exists in the first zone in the region you select. For example, if you want to create a cluster with L4 GPUs, you must make sure you select a region that has an L4 GPU flavor in the first zone of the selected region. If for example you select the Toronto MZR, you can execute this command to see the list of flavors available in the first zone in the Toronto MZR:
+<br/><br/>
+```
+ibmcloud ks flavors --provider vpc-gen2 --zone ca-tor-1
+```
+And you will see that there are 3 L4 flavors in that zone - gx3.16x80.l4, gx3.32x160.2l4, and gx3.64x320.4l4. You would supply one of these as the value for the machine-type input variable and provide ca-tor as the value for the region. Also ensure you understand the cost of 2 of these worker nodes by consulting the IBM Cloud portal.
+<br/><br/>
+You must also provide the name of an IBM Cloud Object Storage instance if you are creating a cluster. ROKS creates a bucket in this instance. This bucket is the storage that backs the cluster internal registry.
+<br/><br/>
+You may also pre-create a cluster of your own configuration and simply provide the name of the cluster and the region it resides in. The DA scripts will then just deploy the Red Hat OpenShift AI stack of operators into your existing cluster. You must however make sure that your OperatorHub is properly configured to be able to pull images and content for the operators.
 
+## Created Resources
 If the user chooses to create a cluster, the following items will get created:
 1. A resource group named ai-resource-group
 2. A subnet named roks-gpu-subnet-1 in zone 1 of the chosen region in the resource group

@@ -13,6 +13,21 @@ variable "cluster-name" {
 variable "region" {
   type        = string
   description = "IBM Cloud region. Use 'ibmcloud regions' to get the list"
+  validation {
+    condition = anytrue([
+      var.ocp_version == "au_syd",
+      var.ocp_version == "br-sao",
+      var.ocp_version == "ca-tor",
+      var.ocp_version == "eu-de",
+      var.ocp_version == "eu-es",
+      var.ocp_version == "eu-gb",
+      var.ocp_version == "jp-osa",
+      var.ocp_version == "jp-tok",
+      var.ocp_version == "us-east",
+      var.ocp_version == "us-south"
+    ])
+    error_message = "The specified region is not one of the validated versions."
+  }
 }
 
 variable "number-gpu-nodes" {
@@ -30,7 +45,14 @@ variable "create-cluster" {
 variable "ocp-version" {
   type        = string
   description = "Major.minor version of the OCP cluster to provision"
-  default     = null
+  validation {
+    condition = anytrue([
+      var.ocp_version == "4.12",
+      var.ocp_version == "4.13",
+      var.ocp_version == "4.14"
+    ])
+    error_message = "The specified ocp_version is not one of the validated versions."
+  }
 }
 
 variable "machine-type" {

@@ -55,7 +55,113 @@
                                 "description": "Your list of installed Operators once this has been applied"
                             }
                         ]
-                    }
+                    },
+                    "configuration": [
+                        {
+                            "key": "ibmcloud_api_key",
+                            "type": "multiline_secure_value",
+                            "display_name": "Multiline secure value",
+                            "required": true,
+                            "custom_config": {
+                                "grouping": "deployment",
+                                "original_grouping": "deployment",
+                                "type": "multiline_secure_value"
+                            }
+                        },
+                        {
+                            "key": "cluster-name",
+                            "type": "string",
+                            "required": true
+                        },
+                        {
+                            "key": "region",
+                            "type": "string",
+                            "required": true,
+                            "options": [
+                                {
+                                    "displayname": "Sydney, Australia",
+                                    "value": "au-syd"
+                                },
+                                {
+                                    "displayname": "Sao Paulo, Brazil",
+                                    "value": "br-sao"
+                                },
+                                {
+                                    "displayname": "Toronto, Canada",
+                                    "value": "ca-tor"
+                                },
+                                {
+                                    "displayname": "Frankfort, Germany",
+                                    "value": "eu-de"
+                                },
+                                {
+                                    "displayname": "Madrid, Spain",
+                                    "value": "eu-es"
+                                },
+                                {
+                                    "displayname": "London, England",
+                                    "value": "eu-gb"
+                                },
+                                {
+                                    "displayname": "Osaka, Japan",
+                                    "value": "jp-osa"
+                                },
+                                {
+                                    "displayname": "Tokyo, Japan",
+                                    "value": "jp-tok"
+                                },
+                                {
+                                    "displayname": "Washington D.C., USA",
+                                    "value": "us-east"
+                                },
+                                {
+                                    "displayname": "Dallas, USA",
+                                    "value": "us-south"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "number-gpu-nodes",
+                            "type": "number",
+                            "default_value": 2,
+                            "required": true
+                        },
+                        {
+                            "key": "create-cluster",
+                            "type": "bool",
+                            "required": true,
+                            "default_value": false
+                        },
+                        {
+                            "key": "ocp-version",
+                            "type": "string",
+                            "required": false,
+                            "options": [
+                                {
+                                    "displayname": "4.12",
+                                    "value": "4.12"
+                                },
+                                {
+                                    "displayname": "4.13",
+                                    "value": "4.13"
+                                },
+                                {
+                                    "displayname": "4.14",
+                                    "value": "4.14"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "machine-type",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "key": "cos-instance",
+                            "type": "string",
+                            "required": false
+                        }
+                    ]
                 }
             ]
         }
