@@ -154,10 +154,18 @@ data "ibm_container_cluster_config" "cluster_config" {
 }
 
 ##############################################################################
+# Delay after the cluster creation to let things settle
+##############################################################################
+resource "time_sleep" "wait" {
+  depends_on      = [data.ibm_container_cluster_config.cluster_config]
+  create_duration = var.create-cluster ? "120s" : "1s"
+}
+
+##############################################################################
 # Install the Pipelines operator if requested by the user
 ##############################################################################
 resource "helm_release" "pipelines_operator" {
-  depends_on = [data.ibm_container_cluster_config.cluster_config]
+  depends_on = [time_sleep.wait]
 
   name              = local.helm_release_name_pipeline_operator
   chart             = "${path.module}/chart/${local.chart_path_pipeline_operator}"

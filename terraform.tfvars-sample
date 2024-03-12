@@ -1,8 +1,9 @@
-#can include ibmcloud_api_key value here or in TF_VAR_ibmcloud_api_key environment variable
-cluster_id = "myclustername"
-deploy_pipeline_operator = true
-region = "us-south"
-nvidia-gpu-channel = "v23.9"
-nvidia-gpu-startingcsv = "gpu-operator-certified.v23.9.1"
-nfd-instance-image-version = "v4.13"
+# can include ibmcloud_api_key value here or in TF_VAR_ibmcloud_api_key environment variable
+cluster-name = "newgpu"
+region = "ca-tor"
 number-gpu-nodes = 2
+# variables when creating a new cluster
+create-cluster = true
+ocp-version = "4.14"
+machine-type = "gx3.16x80.l4"
+cos-instance = "Cloud Object Storage-abc"

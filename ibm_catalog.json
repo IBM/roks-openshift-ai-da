@@ -23,7 +23,7 @@
             ],
             "short_description": "Deploys the Red Hat OpenShift AI operator and its pre-requisites into a ROKS cluster with GPU worker nodes",
             "long_description": "Deploy the Red Hat OpenShift AI operator and all of its pre-requisites including the Node Feature Discovery operator and the GPU operator into a new or pre-existing ROKS cluster.",
-            "offering_docs_url": "https://github.com/darrellschrag/rhods-da/blob/main/README.md",
+            "offering_docs_url": "https://github.com/IBM/roks-openshift-ai-da/blob/main/README.md",
             "offering_icon_url": "https://raw.githubusercontent.com/terraform-ibm-modules/documentation/main/icons/RH_OpenShift.svg",
             "provider_name": "IBM",
             "flavors": [
@@ -33,7 +33,7 @@
                     "licenses": [
                         {
                           "name": "Apache License 2.0",
-                          "url": "https://raw.githubusercontent.com/darrellschrag/rhods-da/main/LICENSE"
+                          "url": "https://github.com/IBM/roks-openshift-ai-da/raw/main/LICENSE"
                         }
                     ],
                     "architecture": {
@@ -41,7 +41,7 @@
                             {
                                 "diagram": {
                                     "caption": "Resulting Architecture",
-                                    "url": "https://github.com/darrellschrag/rhods-da/raw/main/docs/RHOAI.svg",
+                                    "url": "https://github.com/IBM/roks-openshift-ai-da/raw/main/docs/RHOAI.svg",
                                     "type": "image/svg+xml"
                                 },
                                 "description": "The resulting architecture of deploying this DA"
@@ -49,13 +49,34 @@
                             {
                                 "diagram": {
                                     "caption": "Resulting Operator Installs",
-                                    "url": "https://github.com/darrellschrag/rhods-da/raw/main/docs/installed_operators.svg",
+                                    "url": "https://github.com/IBM/roks-openshift-ai-da/raw/main/docs/installed_operators.svg",
                                     "type": "image/svg+xml"
                                 },
                                 "description": "Your list of installed Operators once this has been applied"
                             }
                         ]
                     },
+                    "iam_permissions": [
+                        {
+                            "role_crns": [
+                                "crn:v1:bluemix:public:iam::::role:Administrator"
+                            ],
+                            "service_name": "is.vpc"
+                        },
+                        {
+                            "role_crns": [
+                                "crn:v1:bluemix:public:iam::::serviceRole:Manager",
+                                "crn:v1:bluemix:public:iam::::role:Administrator"
+                            ],
+                            "service_name": "containers-kubernetes"
+                        },
+                        {
+                            "role_crns": [
+                                "crn:v1:bluemix:public:iam::::role:Administrator"
+                            ],
+                            "service_name": "ibmcloud-platform"
+                        }
+                    ],
                     "configuration": [
                         {
                             "key": "ibmcloud_api_key",
@@ -76,49 +97,18 @@
                         {
                             "key": "region",
                             "type": "string",
+                            "default_value": "us-east",
+                            "description": "IBM Cloud region. Use 'ibmcloud regions' to get the list",
+                            "display_name": "VPC region",
                             "required": true,
-                            "options": [
-                                {
-                                    "displayname": "Sydney, Australia",
-                                    "value": "au-syd"
-                                },
-                                {
-                                    "displayname": "Sao Paulo, Brazil",
-                                    "value": "br-sao"
-                                },
-                                {
-                                    "displayname": "Toronto, Canada",
-                                    "value": "ca-tor"
-                                },
-                                {
-                                    "displayname": "Frankfort, Germany",
-                                    "value": "eu-de"
-                                },
-                                {
-                                    "displayname": "Madrid, Spain",
-                                    "value": "eu-es"
-                                },
-                                {
-                                    "displayname": "London, England",
-                                    "value": "eu-gb"
-                                },
-                                {
-                                    "displayname": "Osaka, Japan",
-                                    "value": "jp-osa"
-                                },
-                                {
-                                    "displayname": "Tokyo, Japan",
-                                    "value": "jp-tok"
-                                },
-                                {
-                                    "displayname": "Washington D.C., USA",
-                                    "value": "us-east"
-                                },
-                                {
-                                    "displayname": "Dallas, USA",
-                                    "value": "us-south"
+                            "custom_config": {
+                                "type": "vpc_region",
+                                "grouping": "deployment",
+                                "original_grouping": "deployment",
+                                "config_constraints": {
+                                    "generationType": "2"
                                 }
-                            ]
+                            }
                         },
                         {
                             "key": "number-gpu-nodes",
