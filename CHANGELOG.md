@@ -45,3 +45,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 ### Fixed
    * Fix errors in variables
+
+## 1.1.6 - 2024-03-13
+### Added
+### Changed
+### Fixed
+   * Change how ocp-version is done
