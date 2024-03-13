@@ -112,30 +112,19 @@ data "ibm_resource_instance" "cos_instance" {
 }
 
 ##############################################################################
-# Retrieve the current ocp version
-##############################################################################
-data "external" "ocp_data" {
-  program = ["bash", "${path.module}/scripts/get-openshift-data.sh"]
-
-  query = {
-    ocp_version = var.ocp-version
-  }
-}
-
-##############################################################################
 # Create a cluster
 ##############################################################################
 resource "ibm_container_vpc_cluster" "cluster" {
-  depends_on         = [data.external.ocp_data]
-  count              = var.create-cluster ? 1 : 0
-  name               = var.cluster-name
-  vpc_id             = ibm_is_vpc.vpc[0].id
-  flavor             = var.machine-type
-  worker_count       = var.number-gpu-nodes == null ? 2 : var.number-gpu-nodes < 2 ? 2 : var.number-gpu-nodes
-  resource_group_id  = ibm_resource_group.res_group[0].id
-  cos_instance_crn   = data.ibm_resource_instance.cos_instance[0].id
-  kube_version       = data.external.ocp_data.result.ocp_version
-  update_all_workers = true
+  count                = var.create-cluster ? 1 : 0
+  name                 = var.cluster-name
+  vpc_id               = ibm_is_vpc.vpc[0].id
+  flavor               = var.machine-type
+  worker_count         = var.number-gpu-nodes == null ? 2 : var.number-gpu-nodes < 2 ? 2 : var.number-gpu-nodes
+  resource_group_id    = ibm_resource_group.res_group[0].id
+  cos_instance_crn     = data.ibm_resource_instance.cos_instance[0].id
+  kube_version         = "${var.ocp-version}_openshift"
+  update_all_workers   = true
+  force_delete_storage = true
   zones {
     subnet_id = ibm_is_subnet.subnet_zone_1[0].id
     name      = "${var.region}-1"

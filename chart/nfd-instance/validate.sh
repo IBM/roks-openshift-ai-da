@@ -8,7 +8,7 @@ loop_count=0
 until [[ $loop_count -gt 24 ]]
 do
    echo "Checking nodes for the label 'feature.node.kubernetes.io/pci-10de.present'"
-   results=$(kubectl get nodes -l feature.node.kubernetes.io/pci-10de.present -L feature.node.kubernetes.io/pci-10de.present 2>&1)
+   results=$(kubectl get nodes -L feature.node.kubernetes.io/pci-10de.present 2>&1)
    if [[ $results == "No resources found" ]]
    then
       loop_count=$((loop_count+1))
@@ -32,6 +32,6 @@ done
 if [[ $found == 0 ]]
 then
    echo "Did not find $expected_num_nodes GPU nodes in the cluster!"
-   kubectl get nodes -l feature.node.kubernetes.io/pci-10de.present -L feature.node.kubernetes.io/pci-10de.present
+   kubectl get nodes -L feature.node.kubernetes.io/pci-10de.present
    exit 1
 fi
