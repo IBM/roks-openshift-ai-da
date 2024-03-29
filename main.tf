@@ -18,14 +18,14 @@ resource "ibm_resource_group" "res_group" {
 
 resource "ibm_is_vpc" "vpc" {
   count                     = var.create-cluster ? 1 : 0
-  name                      = "roks-gpu-vpc"
+  name                      = "ai-vpc"
   resource_group            = ibm_resource_group.res_group[0].id
   address_prefix_management = "auto"
 }
 
 resource "ibm_is_public_gateway" "gateway" {
   count          = var.create-cluster ? 1 : 0
-  name           = "roks-gpu-gateway-1"
+  name           = "ai-gateway-1"
   vpc            = ibm_is_vpc.vpc[0].id
   resource_group = ibm_resource_group.res_group[0].id
   zone           = "${var.region}-1"
@@ -33,7 +33,7 @@ resource "ibm_is_public_gateway" "gateway" {
 
 resource "ibm_is_subnet" "subnet_zone_1" {
   count                    = var.create-cluster ? 1 : 0
-  name                     = "roks-gpu-subnet-1"
+  name                     = "ai-subnet-1"
   vpc                      = ibm_is_vpc.vpc[0].id
   resource_group           = ibm_resource_group.res_group[0].id
   zone                     = "${var.region}-1"
@@ -105,10 +105,25 @@ locals {
   helm_release_name_cluster_policy = local.chart_path_cluster_policy
 }
 
+##############################################################################
+# Fetch the COS info if one already exists
+##############################################################################
 data "ibm_resource_instance" "cos_instance" {
-  count             = var.create-cluster ? 1 : 0
+  count             = var.create-cluster == "false" ? 0 : var.cos-instance == null ? 0 : 1
   name              = var.cos-instance
   service           = "cloud-object-storage"
+}
+
+##############################################################################
+# Create a new COS service instance if one doesn't already exist
+##############################################################################
+resource "ibm_resource_instance" "cos_instance" {
+  count             = var.create-cluster == "false" ? 0 : var.cos-instance == null ? 1 : 0
+  name              = "ai-cos-instance"
+  resource_group_id = ibm_resource_group.res_group[0].id
+  service           = "cloud-object-storage"
+  plan              = "standard"
+  location          = "global"
 }
 
 ##############################################################################
@@ -121,7 +136,7 @@ resource "ibm_container_vpc_cluster" "cluster" {
   flavor               = var.machine-type
   worker_count         = var.number-gpu-nodes == null ? 2 : var.number-gpu-nodes < 2 ? 2 : var.number-gpu-nodes
   resource_group_id    = ibm_resource_group.res_group[0].id
-  cos_instance_crn     = data.ibm_resource_instance.cos_instance[0].id
+  cos_instance_crn     = var.cos-instance == null ? ibm_resource_instance.cos_instance[0].id : data.ibm_resource_instance.cos_instance[0].id
   kube_version         = "${var.ocp-version}_openshift"
   update_all_workers   = true
   force_delete_storage = true
