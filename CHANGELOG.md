@@ -49,5 +49,11 @@ All notable changes to this project will be documented in this file.
 ## 1.1.6 - 2024-03-13
 ### Added
 ### Changed
-### Fixed
    * Change how ocp-version is done
+### Fixed
+
+## 1.1.7 - 2024-03-29
+### Added
+### Changed
+   * Changed to create a new COS service instance if the user wants
+### Fixed
