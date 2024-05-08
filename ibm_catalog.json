@@ -2,7 +2,7 @@
     "products": [
         {
             "name": "roks-rhoai",
-            "label": "ROKS Red Hat OpenShift AI",
+            "label": "Red Hat OpenShift AI on IBM Cloud",
             "product_kind": "solution",
             "tags": [
                 "ocp",
@@ -21,8 +21,8 @@
                 "cluster",
                 "ocp"
             ],
-            "short_description": "Deploys the Red Hat OpenShift AI operator and its pre-requisites into a ROKS cluster with GPU worker nodes",
-            "long_description": "Deploy the Red Hat OpenShift AI operator and all of its pre-requisites including the Node Feature Discovery operator and the GPU operator into a new or pre-existing ROKS cluster.",
+            "short_description": "Deploys the Red Hat OpenShift AI operator and its pre-requisites into an OpenShift on IBM Cloud cluster with GPU worker nodes.",
+            "long_description": "Deploy the Red Hat OpenShift AI operator and all of its pre-requisites including the Node Feature Discovery operator and the GPU operator into a new or pre-existing OpenShift cluster.",
             "offering_docs_url": "https://github.com/IBM/roks-openshift-ai-da/blob/main/README.md",
             "offering_icon_url": "https://raw.githubusercontent.com/terraform-ibm-modules/documentation/main/icons/RH_OpenShift.svg",
             "provider_name": "IBM",
@@ -118,7 +118,7 @@
                         },
                         {
                             "key": "create-cluster",
-                            "type": "bool",
+                            "type": "boolean",
                             "required": true,
                             "default_value": false
                         },

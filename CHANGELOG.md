@@ -57,3 +57,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
    * Changed to create a new COS service instance if the user wants
 ### Fixed
+
+## 2.0.0 - 2024-05-08
+### Added
+### Changed
+   * Update to use ROKS base vpc ocp cluster module
+### Fixed

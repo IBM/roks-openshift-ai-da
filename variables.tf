@@ -40,6 +40,6 @@ variable "machine-type" {
 
 variable "cos-instance" {
   type        = string
-  description = "COS instance where a bucket will be created to back ROKS internal registry"
+  description = "COS instance where a bucket will be created to back ROKS internal registry. Leave blank if you want the DA to create a new COS instance"
   default     = null
 }

@@ -44,7 +44,7 @@ resource "ibm_is_subnet" "subnet_zone_1" {
 
 locals {
 
-  kubeconfig = data.ibm_container_cluster_config.cluster_config.config_file_path
+  kubeconfig = data.ibm_container_cluster_config.da_cluster_config.config_file_path
 
 ###############################
 # Pipelines operator locals
@@ -103,6 +103,25 @@ locals {
   chart_path_cluster_policy = "cluster-policy"
   # data science cluster helm release name
   helm_release_name_cluster_policy = local.chart_path_cluster_policy
+
+  cluster_vpc_subnets = {
+    default = [
+      {
+        id         = ibm_is_subnet.subnet_zone_1[0].id
+        cidr_block = ibm_is_subnet.subnet_zone_1[0].ipv4_cidr_block
+        zone       = ibm_is_subnet.subnet_zone_1[0].zone
+      }
+    ]
+  }
+
+  worker_pools = [
+    {
+      subnet_prefix    = "default"
+      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
+      machine_type     = var.machine-type
+      workers_per_zone = var.number-gpu-nodes
+    }
+  ]
 }
 
 ##############################################################################
@@ -117,41 +136,61 @@ data "ibm_resource_instance" "cos_instance" {
 ##############################################################################
 # Create a new COS service instance if one doesn't already exist
 ##############################################################################
-resource "ibm_resource_instance" "cos_instance" {
-  count             = var.create-cluster == "false" ? 0 : var.cos-instance == null ? 1 : 0
-  name              = "ai-cos-instance"
-  resource_group_id = ibm_resource_group.res_group[0].id
-  service           = "cloud-object-storage"
-  plan              = "standard"
-  location          = "global"
-}
+#resource "ibm_resource_instance" "cos_instance" {
+#  count             = var.create-cluster == "false" ? 0 : var.cos-instance == null ? 1 : 0
+#  name              = "ai-cos-instance"
+#  resource_group_id = ibm_resource_group.res_group[0].id
+#  service           = "cloud-object-storage"
+#  plan              = "standard"
+#  location          = "global"
+#}
 
 ##############################################################################
 # Create a cluster
 ##############################################################################
-resource "ibm_container_vpc_cluster" "cluster" {
+#resource "ibm_container_vpc_cluster" "cluster" {
+#  count                = var.create-cluster ? 1 : 0
+#  name                 = var.cluster-name
+#  tags                 = ["createdby:RHOAI-DA"]
+#  vpc_id               = ibm_is_vpc.vpc[0].id
+#  flavor               = var.machine-type
+#  worker_count         = var.number-gpu-nodes == null ? 2 : var.number-gpu-nodes < 2 ? 2 : var.number-gpu-nodes
+#  resource_group_id    = ibm_resource_group.res_group[0].id
+#  cos_instance_crn     = var.cos-instance == null ? ibm_resource_instance.cos_instance[0].id : data.ibm_resource_instance.cos_instance[0].id
+#  kube_version         = "${var.ocp-version}_openshift"
+#  update_all_workers   = true
+#  force_delete_storage = true
+#  zones {
+#    subnet_id = ibm_is_subnet.subnet_zone_1[0].id
+#    name      = "${var.region}-1"
+#  }
+#}
+
+module "ocp_base" {
+  source               = "terraform-ibm-modules/base-ocp-vpc/ibm"
   count                = var.create-cluster ? 1 : 0
-  name                 = var.cluster-name
-  vpc_id               = ibm_is_vpc.vpc[0].id
-  flavor               = var.machine-type
-  worker_count         = var.number-gpu-nodes == null ? 2 : var.number-gpu-nodes < 2 ? 2 : var.number-gpu-nodes
+  ibmcloud_api_key     = var.ibmcloud_api_key
   resource_group_id    = ibm_resource_group.res_group[0].id
-  cos_instance_crn     = var.cos-instance == null ? ibm_resource_instance.cos_instance[0].id : data.ibm_resource_instance.cos_instance[0].id
-  kube_version         = "${var.ocp-version}_openshift"
-  update_all_workers   = true
+  region               = var.region
+  tags                 = ["createdby:RHOAI-DA"]
+  cluster_name         = var.cluster-name
   force_delete_storage = true
-  zones {
-    subnet_id = ibm_is_subnet.subnet_zone_1[0].id
-    name      = "${var.region}-1"
-  }
+  vpc_id               = ibm_is_vpc.vpc[0].id
+  vpc_subnets          = local.cluster_vpc_subnets
+  ocp_version          = var.ocp-version
+  worker_pools         = local.worker_pools
+  ocp_entitlement      = null
+  use_existing_cos     = var.cos-instance == null ? false :  true
+  existing_cos_id      = var.cos-instance == null ? null : data.ibm_resource_instance.cos_instance[0].id
+  cos_name             = "ai-cos-instance"
 }
 
 ##############################################################################
 # Retrieve information about all the Kubernetes configuration files and
 # certificates to access the cluster in order to run kubectl / oc commands
 ##############################################################################
-data "ibm_container_cluster_config" "cluster_config" {
-  cluster_name_id = var.create-cluster ? ibm_container_vpc_cluster.cluster[0].id : var.cluster-name
+data "ibm_container_cluster_config" "da_cluster_config" {
+  cluster_name_id = var.create-cluster ? module.ocp_base[0].cluster_id : var.cluster-name
   config_dir      = "${path.module}/kubeconfig"
   endpoint_type   = null # null represents default
   admin           = true
@@ -161,7 +200,7 @@ data "ibm_container_cluster_config" "cluster_config" {
 # Delay after the cluster creation to let things settle
 ##############################################################################
 resource "time_sleep" "wait" {
-  depends_on      = [data.ibm_container_cluster_config.cluster_config]
+  depends_on      = [data.ibm_container_cluster_config.da_cluster_config]
   create_duration = var.create-cluster ? "120s" : "1s"
 }
 
@@ -208,7 +247,7 @@ resource "helm_release" "pipelines_operator" {
 # (will start at the same time as the pipelines operator if enabled)
 ##############################################################################
 resource "helm_release" "nfd_operator" {
-  depends_on = [data.ibm_container_cluster_config.cluster_config]
+  depends_on = [data.ibm_container_cluster_config.da_cluster_config]
 
   name              = local.helm_release_name_nfd_operator
   chart             = "${path.module}/chart/${local.chart_path_nfd_operator}"
@@ -291,7 +330,7 @@ data "external" "gpu_operator_data" {
 # (depends on the NFD operator)
 ##############################################################################
 resource "helm_release" "gpu_operator" {
-  depends_on = [data.ibm_container_cluster_config.cluster_config, helm_release.nfd_instance, data.external.gpu_operator_data]
+  depends_on = [data.ibm_container_cluster_config.da_cluster_config, helm_release.nfd_instance, data.external.gpu_operator_data]
 
   name              = local.helm_release_name_gpu_operator
   chart             = "${path.module}/chart/${local.chart_path_gpu_operator}"
@@ -358,7 +397,7 @@ resource "helm_release" "cluster-policy" {
 # (requires the NFD operator and GPU operator installs to be complete)
 ##############################################################################
 resource "helm_release" "rhods_operator" {
-  depends_on = [data.ibm_container_cluster_config.cluster_config, helm_release.cluster-policy, helm_release.nfd_instance]
+  depends_on = [data.ibm_container_cluster_config.da_cluster_config, helm_release.cluster-policy, helm_release.nfd_instance]
 
   name              = local.helm_release_name_rhods_operator
   chart             = "${path.module}/chart/${local.chart_path_rhods_operator}"

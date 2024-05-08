@@ -5,12 +5,12 @@ provider "ibm" {
 
 provider "helm" {
   kubernetes {
-    host  = data.ibm_container_cluster_config.cluster_config.host
-    token = data.ibm_container_cluster_config.cluster_config.token
+    host  = data.ibm_container_cluster_config.da_cluster_config.host
+    token = data.ibm_container_cluster_config.da_cluster_config.token
   }
 }
 
 provider "kubernetes" {
-  host  = data.ibm_container_cluster_config.cluster_config.host
-  token = data.ibm_container_cluster_config.cluster_config.token
+  host  = data.ibm_container_cluster_config.da_cluster_config.host
+  token = data.ibm_container_cluster_config.da_cluster_config.token
 }
