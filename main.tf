@@ -69,7 +69,7 @@ locals {
   subscription_name_rhods_operator = "rhods-operator"
   # local path to the helm chart
   chart_path_data_science_cluster = "data-science-cluster"
-  # data science cluster helm release name
+  # helm release name
   helm_release_name_data_science_cluster = local.chart_path_data_science_cluster
   # data science cluster namespace
   rhods_cluster_namespace = "redhat-ods-applications"
@@ -86,8 +86,10 @@ locals {
   subscription_name_nfd_operator = "nfd"
   # local path to the helm chart
   chart_path_nfd_instance = "nfd-instance"
-  # data science cluster helm release name
+  # helm release name
   helm_release_name_nfd_instance = local.chart_path_nfd_instance
+  # nfd instance image name
+  nfd_image_name = var.ocp-version == "4.15" ? "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9@sha256:0f7b6eff43ff938a9cb84ca37c75fcefd8c9460d410963085fac5fafd3a6143b" : "registry.redhat.io/openshift4/ose-node-feature-discovery:v${var.ocp-version}"
 
 ###############################
 # GPU operator locals
@@ -101,15 +103,15 @@ locals {
   subscription_name_gpu_operator = "gpu-operator-certified"
   # local path to the helm chart
   chart_path_cluster_policy = "cluster-policy"
-  # data science cluster helm release name
+  # helm release name
   helm_release_name_cluster_policy = local.chart_path_cluster_policy
 
   cluster_vpc_subnets = {
     default = [
       {
-        id         = ibm_is_subnet.subnet_zone_1[0].id
-        cidr_block = ibm_is_subnet.subnet_zone_1[0].ipv4_cidr_block
-        zone       = ibm_is_subnet.subnet_zone_1[0].zone
+        id         = try(ibm_is_subnet.subnet_zone_1[0].id, null)
+        cidr_block = try(ibm_is_subnet.subnet_zone_1[0].ipv4_cidr_block, null)
+        zone       = try(ibm_is_subnet.subnet_zone_1[0].zone, null)
       }
     ]
   }
@@ -167,22 +169,23 @@ data "ibm_resource_instance" "cos_instance" {
 #}
 
 module "ocp_base" {
-  source               = "terraform-ibm-modules/base-ocp-vpc/ibm"
-  count                = var.create-cluster ? 1 : 0
-  ibmcloud_api_key     = var.ibmcloud_api_key
-  resource_group_id    = ibm_resource_group.res_group[0].id
-  region               = var.region
-  tags                 = ["createdby:RHOAI-DA"]
-  cluster_name         = var.cluster-name
-  force_delete_storage = true
-  vpc_id               = ibm_is_vpc.vpc[0].id
-  vpc_subnets          = local.cluster_vpc_subnets
-  ocp_version          = var.ocp-version
-  worker_pools         = local.worker_pools
-  ocp_entitlement      = null
-  use_existing_cos     = var.cos-instance == null ? false :  true
-  existing_cos_id      = var.cos-instance == null ? null : data.ibm_resource_instance.cos_instance[0].id
-  cos_name             = "ai-cos-instance"
+  source                              = "terraform-ibm-modules/base-ocp-vpc/ibm"
+  count                               = var.create-cluster ? 1 : 0
+  ibmcloud_api_key                    = var.ibmcloud_api_key
+  resource_group_id                   = ibm_resource_group.res_group[0].id
+  region                              = var.region
+  tags                                = ["createdby:RHOAI-DA"]
+  cluster_name                        = var.cluster-name
+  force_delete_storage                = true
+  vpc_id                              = ibm_is_vpc.vpc[0].id
+  vpc_subnets                         = local.cluster_vpc_subnets
+  ocp_version                         = var.ocp-version
+  worker_pools                        = local.worker_pools
+  ocp_entitlement                     = null
+  disable_outbound_traffic_protection = true
+  use_existing_cos                    = var.cos-instance == null ? false :  true
+  existing_cos_id                     = var.cos-instance == null ? null : data.ibm_resource_instance.cos_instance[0].id
+  cos_name                            = "ai-cos-instance"
 }
 
 ##############################################################################
@@ -247,7 +250,7 @@ resource "helm_release" "pipelines_operator" {
 # (will start at the same time as the pipelines operator if enabled)
 ##############################################################################
 resource "helm_release" "nfd_operator" {
-  depends_on = [data.ibm_container_cluster_config.da_cluster_config]
+  depends_on = [time_sleep.wait]
 
   name              = local.helm_release_name_nfd_operator
   chart             = "${path.module}/chart/${local.chart_path_nfd_operator}"
@@ -304,9 +307,9 @@ resource "helm_release" "nfd_instance" {
     value = local.nfd_operator_namespace
   }
   set {
-    name  = "operators.instance_version"
+    name  = "operators.instance_image"
     type  = "string"
-    value = "v${var.ocp-version}"
+    value = local.nfd_image_name
   }
 
   provisioner "local-exec" {
@@ -322,7 +325,8 @@ resource "helm_release" "nfd_instance" {
 # Collect GPU operator data from the OperatorHub catalog
 ##############################################################################
 data "external" "gpu_operator_data" {
-  program = ["bash", "${path.module}/scripts/get-gpu-operator-data.sh"]
+  depends_on = [time_sleep.wait]
+  program    = ["bash", "${path.module}/scripts/get-gpu-operator-data.sh"]
 }
 
 ##############################################################################

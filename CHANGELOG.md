@@ -63,3 +63,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
    * Update to use ROKS base vpc ocp cluster module
 ### Fixed
+
+## 2.0.2 - 2024-05-11
+### Added
+   * Added support for ROKS 4.15
+### Changed
+### Fixed

@@ -59,6 +59,7 @@
                     "iam_permissions": [
                         {
                             "role_crns": [
+                                "crn:v1:bluemix:public:iam::::serviceRole:Manager",
                                 "crn:v1:bluemix:public:iam::::role:Administrator"
                             ],
                             "service_name": "is.vpc"
@@ -75,6 +76,13 @@
                                 "crn:v1:bluemix:public:iam::::role:Administrator"
                             ],
                             "service_name": "ibmcloud-platform"
+                        },
+                        {
+                            "role_crns": [
+                                "crn:v1:bluemix:public:iam::::serviceRole:Manager",
+                                "crn:v1:bluemix:public:iam::::role:Administrator"
+                            ],
+                            "service_name": "cloud-object-storage"
                         }
                     ],
                     "configuration": [
@@ -138,6 +146,10 @@
                                 {
                                     "displayname": "4.14",
                                     "value": "4.14"
+                                },
+                                {
+                                    "displayname": "4.15",
+                                    "value": "4.15"
                                 }
                             ]
                         },

@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.operators.subscription_name }}
   namespace: {{ .Values.operators.namespace }}
 spec:
-  channel: stable
+  channel: "stable"
   installPlanApproval: Automatic
   name: nfd
   source: redhat-operators

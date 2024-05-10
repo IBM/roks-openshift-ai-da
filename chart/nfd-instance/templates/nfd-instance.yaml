@@ -7,7 +7,7 @@ spec:
   instance: "" # instance is empty by default
   topologyupdater: false # False by default
   operand:
-    image: registry.redhat.io/openshift4/ose-node-feature-discovery:{{ .Values.operators.instance_version }}
+    image: {{ .Values.operators.instance_image }}
     imagePullPolicy: Always
   workerConfig:
     configData: |
