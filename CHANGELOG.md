@@ -64,8 +64,8 @@ All notable changes to this project will be documented in this file.
    * Update to use ROKS base vpc ocp cluster module
 ### Fixed
 
-## 2.0.2 - 2024-05-11
+## 3.0.0 - 2024-05-15
 ### Added
-   * Added support for ROKS 4.15
 ### Changed
+   * Narrowed the DA to only create a new cluster. Only optional inputs are now the ability to re-use an existing COS instance or an existing resource group
 ### Fixed

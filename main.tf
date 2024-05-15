@@ -3,8 +3,13 @@
 ########################################################################################################################
 
 resource "ibm_resource_group" "res_group" {
-  count = var.create-cluster ? 1 : 0
+  count = var.resource-group == null ? 1 : 0
   name  = "ai-resource-group"
+}
+
+data "ibm_resource_group" "resource_group" {
+  count = var.resource-group == null ? 0 : 1
+  name  = var.resource-group
 }
 
 ########################################################################################################################
@@ -17,34 +22,33 @@ resource "ibm_resource_group" "res_group" {
 ########################################################################################################################
 
 resource "ibm_is_vpc" "vpc" {
-  count                     = var.create-cluster ? 1 : 0
   name                      = "ai-vpc"
-  resource_group            = ibm_resource_group.res_group[0].id
+  resource_group            = local.resource_group
   address_prefix_management = "auto"
 }
 
 resource "ibm_is_public_gateway" "gateway" {
-  count          = var.create-cluster ? 1 : 0
   name           = "ai-gateway-1"
-  vpc            = ibm_is_vpc.vpc[0].id
-  resource_group = ibm_resource_group.res_group[0].id
+  vpc            = ibm_is_vpc.vpc.id
+  resource_group = local.resource_group
   zone           = "${var.region}-1"
 }
 
 resource "ibm_is_subnet" "subnet_zone_1" {
-  count                    = var.create-cluster ? 1 : 0
   name                     = "ai-subnet-1"
-  vpc                      = ibm_is_vpc.vpc[0].id
-  resource_group           = ibm_resource_group.res_group[0].id
+  vpc                      = ibm_is_vpc.vpc.id
+  resource_group           = local.resource_group
   zone                     = "${var.region}-1"
   total_ipv4_address_count = 256
-  public_gateway           = ibm_is_public_gateway.gateway[0].id
+  public_gateway           = ibm_is_public_gateway.gateway.id
 }
 
 
 locals {
 
   kubeconfig = data.ibm_container_cluster_config.da_cluster_config.config_file_path
+
+  resource_group = var.resource-group == null ? ibm_resource_group.res_group[0].id : data.ibm_resource_group.resource_group[0].id
 
 ###############################
 # Pipelines operator locals
@@ -109,9 +113,9 @@ locals {
   cluster_vpc_subnets = {
     default = [
       {
-        id         = try(ibm_is_subnet.subnet_zone_1[0].id, null)
-        cidr_block = try(ibm_is_subnet.subnet_zone_1[0].ipv4_cidr_block, null)
-        zone       = try(ibm_is_subnet.subnet_zone_1[0].zone, null)
+        id         = ibm_is_subnet.subnet_zone_1.id
+        cidr_block = ibm_is_subnet.subnet_zone_1.ipv4_cidr_block
+        zone       = ibm_is_subnet.subnet_zone_1.zone
       }
     ]
   }
@@ -130,54 +134,23 @@ locals {
 # Fetch the COS info if one already exists
 ##############################################################################
 data "ibm_resource_instance" "cos_instance" {
-  count             = var.create-cluster == "false" ? 0 : var.cos-instance == null ? 0 : 1
+  count             = var.cos-instance == null ? 0 : 1
   name              = var.cos-instance
   service           = "cloud-object-storage"
 }
 
 ##############################################################################
-# Create a new COS service instance if one doesn't already exist
+# Create the cluster
 ##############################################################################
-#resource "ibm_resource_instance" "cos_instance" {
-#  count             = var.create-cluster == "false" ? 0 : var.cos-instance == null ? 1 : 0
-#  name              = "ai-cos-instance"
-#  resource_group_id = ibm_resource_group.res_group[0].id
-#  service           = "cloud-object-storage"
-#  plan              = "standard"
-#  location          = "global"
-#}
-
-##############################################################################
-# Create a cluster
-##############################################################################
-#resource "ibm_container_vpc_cluster" "cluster" {
-#  count                = var.create-cluster ? 1 : 0
-#  name                 = var.cluster-name
-#  tags                 = ["createdby:RHOAI-DA"]
-#  vpc_id               = ibm_is_vpc.vpc[0].id
-#  flavor               = var.machine-type
-#  worker_count         = var.number-gpu-nodes == null ? 2 : var.number-gpu-nodes < 2 ? 2 : var.number-gpu-nodes
-#  resource_group_id    = ibm_resource_group.res_group[0].id
-#  cos_instance_crn     = var.cos-instance == null ? ibm_resource_instance.cos_instance[0].id : data.ibm_resource_instance.cos_instance[0].id
-#  kube_version         = "${var.ocp-version}_openshift"
-#  update_all_workers   = true
-#  force_delete_storage = true
-#  zones {
-#    subnet_id = ibm_is_subnet.subnet_zone_1[0].id
-#    name      = "${var.region}-1"
-#  }
-#}
-
 module "ocp_base" {
   source                              = "terraform-ibm-modules/base-ocp-vpc/ibm"
-  count                               = var.create-cluster ? 1 : 0
   ibmcloud_api_key                    = var.ibmcloud_api_key
-  resource_group_id                   = ibm_resource_group.res_group[0].id
+  resource_group_id                   = local.resource_group
   region                              = var.region
   tags                                = ["createdby:RHOAI-DA"]
   cluster_name                        = var.cluster-name
   force_delete_storage                = true
-  vpc_id                              = ibm_is_vpc.vpc[0].id
+  vpc_id                              = ibm_is_vpc.vpc.id
   vpc_subnets                         = local.cluster_vpc_subnets
   ocp_version                         = var.ocp-version
   worker_pools                        = local.worker_pools
@@ -193,7 +166,7 @@ module "ocp_base" {
 # certificates to access the cluster in order to run kubectl / oc commands
 ##############################################################################
 data "ibm_container_cluster_config" "da_cluster_config" {
-  cluster_name_id = var.create-cluster ? module.ocp_base[0].cluster_id : var.cluster-name
+  cluster_name_id = module.ocp_base.cluster_id
   config_dir      = "${path.module}/kubeconfig"
   endpoint_type   = null # null represents default
   admin           = true
@@ -204,7 +177,7 @@ data "ibm_container_cluster_config" "da_cluster_config" {
 ##############################################################################
 resource "time_sleep" "wait" {
   depends_on      = [data.ibm_container_cluster_config.da_cluster_config]
-  create_duration = var.create-cluster ? "120s" : "1s"
+  create_duration = "120s"
 }
 
 ##############################################################################

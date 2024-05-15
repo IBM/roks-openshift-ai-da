@@ -127,12 +127,6 @@
                             "required": true
                         },
                         {
-                            "key": "create-cluster",
-                            "type": "boolean",
-                            "required": true,
-                            "default_value": false
-                        },
-                        {
                             "key": "ocp-version",
                             "type": "string",
                             "required": true,
@@ -162,6 +156,11 @@
                         },
                         {
                             "key": "cos-instance",
+                            "type": "string",
+                            "required": false
+                        },
+                        {
+                            "key": "resource-group",
                             "type": "string",
                             "required": false
                         }
