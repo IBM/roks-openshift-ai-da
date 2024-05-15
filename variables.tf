@@ -29,7 +29,6 @@ variable "create-cluster" {
 variable "ocp-version" {
   type        = string
   description = "Major.minor version of the OCP cluster to provision"
-  default     = null
 }
 
 variable "machine-type" {

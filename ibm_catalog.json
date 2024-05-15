@@ -2,10 +2,11 @@
     "products": [
         {
             "name": "roks-rhoai",
-            "label": "Red Hat OpenShift AI on IBM Cloud",
+            "label": "Red Hat OpenShift AI",
             "product_kind": "solution",
             "tags": [
                 "ocp",
+                "OpenShift",
                 "ROKS",
                 "data_science",
                 "AI",
@@ -19,7 +20,8 @@
                 "red_hat",
                 "AI",
                 "cluster",
-                "ocp"
+                "ocp",
+                "OpenShift"
             ],
             "short_description": "Deploys the Red Hat OpenShift AI operator and its pre-requisites into an OpenShift on IBM Cloud cluster with GPU worker nodes.",
             "long_description": "Deploy the Red Hat OpenShift AI operator and all of its pre-requisites including the Node Feature Discovery operator and the GPU operator into a new or pre-existing OpenShift cluster.",
@@ -133,7 +135,7 @@
                         {
                             "key": "ocp-version",
                             "type": "string",
-                            "required": false,
+                            "required": true,
                             "options": [
                                 {
                                     "displayname": "4.12",

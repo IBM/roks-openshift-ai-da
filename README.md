@@ -70,14 +70,14 @@ You need the following permissions to run this module.
 | ibmcloud_api_key | APIkey that's associated with the account to use | `string` | none | yes |
 | cluster-name | Name of the target or new IBM Cloud OpenShift Cluster | `string` | none | yes |
 | region | IBM Cloud region. Use 'ibmcloud regions' to get the list | `string` | none | yes |
-| number-gpu-nodes | The number of GPU nodes expected to be found or to create in the cluster | `number` | none | yes |
+| number-gpu-nodes | The number of GPU nodes expected to be found or to create in the cluster | `number` | 2 | yes |
+| create-cluster | Set to true if you want a new cluster created. Set to false to use a pre-existing cluster. | `bool` | `false` | yes |
+| ocp-version | Major.minor version of the OCP cluster to provision | `string` | none | yes |
 
 ### The following inputs are only required if you want Terraform to create a cluster. All below values must be provided if you want Terraform to create a cluster.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| create-cluster | Set to true if you want a new cluster created. Set to false to use a pre-existing cluster. | `bool` | `false` | no |
-| ocp-version | Major.minor version of the OCP cluster to provision | `string` | none | no |
 | machine-type | Worker node machine type. Should be a GPU flavor. Use 'ibmcloud ks flavors --zone <zone>' to retrieve the list.| `string` | none | no |
 | cos-instance | A pre-existing COS service instance where a bucket will be provisioned to back the ROKS internal registry. If you leave this blank, a new COS instance  will be created for you | `string` | none | mo |
 
