@@ -2,7 +2,7 @@
     "products": [
         {
             "name": "roks-rhoai",
-            "label": "Red Hat OpenShift AI",
+            "label": "OpenShift AI on IBM Cloud",
             "product_kind": "solution",
             "tags": [
                 "ocp",
@@ -24,10 +24,20 @@
                 "OpenShift"
             ],
             "short_description": "Deploys the Red Hat OpenShift AI operator and its pre-requisites into an OpenShift on IBM Cloud cluster with GPU worker nodes.",
-            "long_description": "Deploy the Red Hat OpenShift AI operator and all of its pre-requisites including the Node Feature Discovery operator and the GPU operator into a new or pre-existing OpenShift cluster.",
+            "long_description": "Deploy the Red Hat OpenShift AI operator and all of its pre-requisites including the Node Feature Discovery operator and the GPU operator into a new OpenShift cluster.",
             "offering_docs_url": "https://github.com/IBM/roks-openshift-ai-da/blob/main/README.md",
             "offering_icon_url": "https://raw.githubusercontent.com/terraform-ibm-modules/documentation/main/icons/RH_OpenShift.svg",
             "provider_name": "IBM",
+            "features": [
+                {
+                    "title": "Simple VPC",
+                    "description": "Creates a simple VPC with a single subnet in zone 1 with an attached public gateway"
+                },
+                {
+                    "title": "OpenShift Cluster",
+                    "description": "Creates a simple publicly accessible OpenShift cluster without any attached services"
+                }
+            ],
             "flavors": [
                 {
                     "label": "Basic",
@@ -152,7 +162,7 @@
                         {
                             "key": "machine-type",
                             "type": "string",
-                            "required": false
+                            "required": true
                         },
                         {
                             "key": "cos-instance",

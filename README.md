@@ -1,7 +1,9 @@
-# roks-openshift-ai-da
-The repository holds the terraform code for the ROKS OpenShift AI Deployable Architecture
+# OpenShift AI on IBM Cloud
+The repository holds the terraform code for the OpenShift AI on IBM Cloud Deployable Architecture
 
-The goal of this Deployable Architecture is to quickly create an environment to get hands on with Red Hat OpenShift AI using a ROKS cluster in IBM Cloud. The DA itself will create a simple 1 zone cluster for the user. The DA will then install the OpenShift AI stack.
+The goal of this Deployable Architecture is to quickly create an environment to get hands on with Red Hat OpenShift AI using an OpenShift cluster in IBM Cloud. The DA itself will create a simple 1 zone cluster for the user. The DA will then install the OpenShift AI stack.
+<br/><br/>
+Red Hat OpenShift AI licensing is done outside of this DA. You must acquire a Red Hat OpenShift AI license from Red Hat if you plan on using the resulting cluster for more than just exploration.
 <br/><br/>
 As mentioned above, the cluster that will be created will be a single zone cluster. It will be created in the "1" zone in the region selected. A new VPC is created with a new default subnet created in the first zone. Attached to that subnet is a public gatway. The cluster is created in this new VPC.
 <br/><br/>
@@ -9,13 +11,13 @@ You must provide a target region for all of the resources created. You can get t
 ```
 ibmcloud regions
 ```
-You must provide the machine-type of the ROKS cluster worker node. This requires that you choose a machine-type that exists in the first zone in the region you select. For example, if you want to create a cluster with L4 GPUs, you must make sure you select a region that has an L4 GPU flavor in the first zone of the selected region. If for example you select the Toronto MZR, you can execute this command to see the list of flavors available in the first zone in the Toronto MZR:
+You must provide the machine-type of the cluster worker node. This requires that you choose a machine-type that exists in the first zone in the region you select. For example, if you want to create a cluster with L4 GPUs, you must make sure you select a region that has an L4 GPU flavor in the first zone of the selected region. If for example you select the Toronto MZR, you can execute this command to see the list of flavors available in the first zone in the Toronto MZR:
 ```
 ibmcloud ks flavors --provider vpc-gen2 --zone ca-tor-1
 ```
 And you will see that there are 3 L4 flavors in that zone - gx3.16x80.l4, gx3.32x160.2l4, and gx3.64x320.4l4. You would supply one of these as the value for the machine-type input variable and provide ca-tor as the value for the region. Also ensure you understand the cost of 2 of these worker nodes by consulting the IBM Cloud portal.
 <br/><br/>
-ROKS uses an IBM Cloud Object Storage bucket as the storage backing for its internal registry. The provisioning process creates a bucket in the provided COS instance. Provide the name of an existing IBM Cloud Object Storage instance that you want to use. If you don't provide an instance name, one will be created for you.
+OpenShift on IBM Cloud uses an IBM Cloud Object Storage bucket as the storage backing for its internal registry. The provisioning process creates a bucket in the provided COS instance. Provide the name of an existing IBM Cloud Object Storage instance that you want to use. If you don't provide an instance name, one will be created for you.
 <br/><br/>
 This DA can be a bit inconsistent as it relies on the fact that the cluster is in the proper state to repond to the installation of operators. The terraform will wait for the cluster to be ready with the Ingress in a ready state, but things like the OperatorHub and its pods must also be ready. Sometimes the Schematics workspace will fail due to the cluster not quite being ready even though the status says it is. Also, the last step in the installation is an attempt to show the Nvidia GPU Operator and the OpenShift AI operator pod status. These may not quite be done yet but the DA will finish. If the Schematics workspace fails, try running it again before jumping to bug investigation. See the bottom of this ReadMe for ways to validate proper operator installation.
 
@@ -26,9 +28,9 @@ The following items will get created:
 3. A public gateway named `ai-gateway-1` attached to the subnet in the resource group
 4. A vpc named `ai-vpc` containing the above subnet and public gateway in the resource group
 5. A COS instance named `ai-cos-instance` (if no existing COS instance is provided)
-6. A single zone ROKS cluster in the created subnet and vpc with the user specified number of workers in the resource group. The cluster does not have logging, monitoring, secrets manager, or encryption attached at all. It will be publicly accessible.
+6. A single zone cluster in the created subnet and vpc with the user specified number of workers in the resource group. The cluster does not have logging, monitoring, secrets manager, or encryption attached at all. It will be publicly accessible.
 
-This rest of the Terraform script will deploy the Operators necessary for the Red Hat OpenShift AI functionality to the new or existing ROKS cluster. The following Operators and their corresponding components are deployed.
+This rest of the Terraform script will deploy the Operators necessary for the Red Hat OpenShift AI functionality to the new cluster. The following Operators and their corresponding components are deployed.
 
 1. Red Hat Pipelines Operator - Incorporate Tekton pipelines into your AI work
 2. Red Hat Node Discovery Feature Operator
@@ -42,7 +44,7 @@ This rest of the Terraform script will deploy the Operators necessary for the Re
 You need the following permissions to run this module.
 
 - IAM Services
-  - **Kubernetes** service (to create and access a ROKS cluster)
+  - **Kubernetes** service (to create and access a cluster)
       - `Administrator` platform access
       - `Manager` service access
   - **VPC Infrastructure** service (to create VPC resources)
@@ -72,7 +74,7 @@ You need the following permissions to run this module.
 | number-gpu-nodes | The number of GPU nodes expected to be found or to create in the cluster | `number` | 2 | yes |
 | ocp-version | Major.minor version of the OCP cluster to provision | `string` | none | yes |
 | machine-type | Worker node machine type. Should be a GPU flavor. Use 'ibmcloud ks flavors --zone <zone>' to retrieve the list.| `string` | none | yes |
-| cos-instance | A pre-existing COS service instance where a bucket will be provisioned to back the ROKS internal registry. If you leave this blank, a new COS instance will be created for you | `string` | none | no |
+| cos-instance | A pre-existing COS service instance where a bucket will be provisioned to back the internal registry. If you leave this blank, a new COS instance will be created for you | `string` | none | no |
 | resource-group | A pre-existing resource group. If you leave this blank, a new resource group will be created for you | `string` | none | no |
 
 ## Sample terraform.tfvars file
