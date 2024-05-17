@@ -69,3 +69,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
    * Narrowed the DA to only create a new cluster. Only optional inputs are now the ability to re-use an existing COS instance or an existing resource group
 ### Fixed
+
+## 3.0.1 - 2024-05-16
+### Added
+### Changed
+### Fixed
+  * Small bug fixes
