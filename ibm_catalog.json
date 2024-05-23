@@ -49,6 +49,32 @@
                         }
                     ],
                     "architecture": {
+                        "features": [
+                            {
+								"title": "New resource group (if existing one is not specified)",
+								"description": "Yes"
+							},
+                            {
+								"title": "New VPC with one subnet and an attached public gateway",
+								"description": "Yes"
+							},
+                            {
+								"title": "New Cloud Object Storage instance (if existing one is not specified)",
+								"description": "Yes"
+							},
+							{
+								"title": "New OpenShift cluster with GPU worker nodes",
+								"description": "Yes"
+							},
+							{
+								"title": "Installed and configured Pipelines, Node Feature Discovery, and GPU operators",
+								"description": "Yes"
+							},
+							{
+								"title": "Installed Red Hat OpenShift AI operator",
+								"description": "Yes"
+							}
+						],
                         "diagrams": [
                             {
                                 "diagram": {

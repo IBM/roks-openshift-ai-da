@@ -75,3 +75,10 @@ All notable changes to this project will be documented in this file.
 ### Changed
 ### Fixed
   * Small bug fixes
+
+## 3.0.2 - 2024-05-23
+### Added
+  * Added flavor features
+### Changed
+### Fixed
+  * Fixed variable descriptions

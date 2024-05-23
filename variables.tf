@@ -6,7 +6,7 @@ variable "ibmcloud_api_key" {
 
 variable "cluster-name" {
   type        = string
-  description = "Name of the target or new IBM Cloud OpenShift Cluster"
+  description = "Name of new IBM Cloud OpenShift Cluster"
 }
 
 variable "region" {
@@ -16,7 +16,7 @@ variable "region" {
 
 variable "number-gpu-nodes" {
   type        = number
-  description = "The number of GPU nodes expected to be found or to create in the cluster"
+  description = "The number of GPU nodes to create in the cluster"
   default     = 2
 }
 
