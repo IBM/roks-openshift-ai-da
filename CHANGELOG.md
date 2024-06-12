@@ -82,3 +82,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 ### Fixed
   * Fixed variable descriptions
+
+## 3.0.3 - 2024-06-11
+### Added
+  * Added ability to specify new resource group and/or COS instance names
+### Changed
+### Fixed
