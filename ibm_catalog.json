@@ -145,7 +145,7 @@
                             "key": "region",
                             "type": "string",
                             "default_value": "us-east",
-                            "description": "IBM Cloud region. Use 'ibmcloud regions' to get the list",
+                            "description": "IBM Cloud region",
                             "display_name": "VPC region",
                             "required": true,
                             "custom_config": {
@@ -156,6 +156,26 @@
                                     "generationType": "2"
                                 }
                             }
+                        },
+                        {
+                            "key": "zone",
+                            "type": "number",
+                            "default_value": 1,
+                            "required": true,
+                            "options": [
+                                {
+                                    "displayname": "1",
+                                    "value": 1
+                                },
+                                {
+                                    "displayname": "2",
+                                    "value": 2
+                                },
+                                {
+                                    "displayname": "3",
+                                    "value": 3
+                                }
+                            ]
                         },
                         {
                             "key": "number-gpu-nodes",

@@ -1,9 +1,9 @@
 # can include ibmcloud_api_key value here or in TF_VAR_ibmcloud_api_key environment variable
 cluster-name = "newgpu"
 region = "ca-tor"
+zone = 1
 number-gpu-nodes = 2
-# variables when creating a new cluster
-create-cluster = true
 ocp-version = "4.14"
 machine-type = "gx3.16x80.l4"
-cos-instance = "Cloud Object Storage-abc"
+cos-instance = "my-cos-instance"
+resource-group = "my-resource-group"

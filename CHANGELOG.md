@@ -88,3 +88,9 @@ All notable changes to this project will be documented in this file.
   * Added ability to specify new resource group and/or COS instance names
 ### Changed
 ### Fixed
+
+## 3.0.4 - 2024-06-19
+### Added
+  * Added zone as a variable
+### Changed
+### Fixed

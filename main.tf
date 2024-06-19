@@ -41,23 +41,23 @@ data "ibm_resource_instance" "cos_instance" {
 ########################################################################################################################
 
 resource "ibm_is_vpc" "vpc" {
-  name                      = "ai-vpc"
+  name                      = "rhoai-vpc"
   resource_group            = local.resource_group
   address_prefix_management = "auto"
 }
 
 resource "ibm_is_public_gateway" "gateway" {
-  name           = "ai-gateway-1"
+  name           = "rhoai-gateway"
   vpc            = ibm_is_vpc.vpc.id
   resource_group = local.resource_group
-  zone           = "${var.region}-1"
+  zone           = "${var.region}-${var.zone}"
 }
 
-resource "ibm_is_subnet" "subnet_zone_1" {
-  name                     = "ai-subnet-1"
+resource "ibm_is_subnet" "subnet_zone" {
+  name                     = "rhoai-subnet"
   vpc                      = ibm_is_vpc.vpc.id
   resource_group           = local.resource_group
-  zone                     = "${var.region}-1"
+  zone                     = "${var.region}-${var.zone}"
   total_ipv4_address_count = 256
   public_gateway           = ibm_is_public_gateway.gateway.id
 }
@@ -132,12 +132,39 @@ locals {
   cluster_vpc_subnets = {
     default = [
       {
-        id         = ibm_is_subnet.subnet_zone_1.id
-        cidr_block = ibm_is_subnet.subnet_zone_1.ipv4_cidr_block
-        zone       = ibm_is_subnet.subnet_zone_1.zone
+        id         = ibm_is_subnet.subnet_zone.id
+        cidr_block = ibm_is_subnet.subnet_zone.ipv4_cidr_block
+        zone       = ibm_is_subnet.subnet_zone.zone
       }
     ]
   }
+
+  worker_pool_1 = [
+    {
+      subnet_prefix    = "default"
+      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
+      machine_type     = "worker-type"
+      workers_per_zone = 2
+    }
+  ]
+
+  worker_pool_2 = [
+    {
+      subnet_prefix    = "default"
+      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
+      machine_type     = "worker-type"
+      workers_per_zone = 2
+    }
+  ]
+
+  worker_pool_3 = [
+    {
+      subnet_prefix    = "default"
+      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
+      machine_type     = "worker-type"
+      workers_per_zone = 2
+    }
+  ]
 
   worker_pools = [
     {
