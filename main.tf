@@ -181,7 +181,6 @@ locals {
 ##############################################################################
 module "ocp_base" {
   source                              = "terraform-ibm-modules/base-ocp-vpc/ibm"
-  ibmcloud_api_key                    = var.ibmcloud_api_key
   resource_group_id                   = local.resource_group
   region                              = var.region
   tags                                = ["createdby:RHOAI-DA"]

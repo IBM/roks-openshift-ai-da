@@ -94,3 +94,9 @@ All notable changes to this project will be documented in this file.
   * Added zone as a variable
 ### Changed
 ### Fixed
+
+## 3.0.5 - 2024-06-28
+### Added
+### Changed
+### Fixed
+  * Removed API key variable to ocp_base module
