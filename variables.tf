@@ -44,6 +44,6 @@ variable "cos-instance" {
 
 variable "resource-group" {
   type        = string
-  description = "Leave bland if you want the DA to create a new resource group named rhoai-resource-group, or specify the name for a new or existing resource group."
+  description = "Leave blank if you want the DA to create a new resource group named rhoai-resource-group, or specify the name for a new or existing resource group."
   default     = null
 }
