@@ -6,7 +6,7 @@ metadata:
 spec:
   channel: {{ .Values.operators.channel }}
   installPlanApproval: Manual
-  name: gpu-operator-certified
+  name: {{ .Values.operators.subscription_name }}
   source: certified-operators
   sourceNamespace: openshift-marketplace
   startingCSV: {{ .Values.operators.startingCSV }}

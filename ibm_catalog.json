@@ -190,14 +190,6 @@
                             "required": true,
                             "options": [
                                 {
-                                    "displayname": "4.12",
-                                    "value": "4.12"
-                                },
-                                {
-                                    "displayname": "4.13",
-                                    "value": "4.13"
-                                },
-                                {
                                     "displayname": "4.14",
                                     "value": "4.14"
                                 },

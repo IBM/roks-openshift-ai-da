@@ -50,6 +50,7 @@ approve_install_plan(){
 wait_for_operator(){
     local subscription_name=$1
     local namespace=$2
+    local outdir=$3
 
     echo "Waiting for $subscription_name operator to be running in $namespace (360s timeout)..."
     local sm_csv=""
@@ -76,6 +77,13 @@ wait_for_operator(){
         exit 1
     fi
 
+    ### One more special step if the GPU operator ###
+    if [[ $subscription_name == "gpu-operator-certified" ]]
+    then
+        echo "fetching Cluster Policy from GPU Operator csv"
+        kubectl get csv $sm_csv -n $namespace -o jsonpath='{.metadata.annotations.alm-examples}' | jq .[0] > "${outdir}/clusterpolicy.json"
+    fi
+
     echo "Complete: $subscription_name operator is running"
 }
 
@@ -83,12 +91,13 @@ wait_for_operator(){
 subscription_name=$1
 namespace=$2
 wait_approve=$3
+outdir=$4
 
 if [[ $wait_approve == "approve" ]]
 then
    approve_install_plan "$subscription_name" "$namespace"
 fi
 
-wait_for_operator "$subscription_name" "$namespace"
+wait_for_operator "$subscription_name" "$namespace" "$outdir"
 
 echo "Operator: Install complete"

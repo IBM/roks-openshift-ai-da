@@ -100,3 +100,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 ### Fixed
   * Removed API key variable to ocp_base module
+
+## 3.0.6 - 2024-07-03
+### Added
+### Changed
+  * Changed to fetch the cluster policy yaml
+### Fixed

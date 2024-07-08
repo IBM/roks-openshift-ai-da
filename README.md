@@ -20,6 +20,8 @@ And you will see that there are 3 L4 flavors in that zone - gx3.16x80.l4, gx3.32
 <br/><br/>
 OpenShift on IBM Cloud uses an IBM Cloud Object Storage bucket as the storage backing for its internal registry. The provisioning process creates a bucket in the provided COS instance. Provide the name of an existing IBM Cloud Object Storage instance that you want to use. If you don't provide an instance name, one will be created for you.
 <br/><br/>
+If you choose OpenShift 4.15 or greater, Red Hat CoreOS will be specified as the worker node operating system.
+<br/><br/>
 This DA can be a bit inconsistent as it relies on the fact that the cluster is in the proper state to repond to the installation of operators. The terraform will wait for the cluster to be ready with the Ingress in a ready state, but things like the OperatorHub and its pods must also be ready. Sometimes the Schematics workspace will fail due to the cluster not quite being ready even though the status says it is. Also, the last step in the installation is an attempt to show the Nvidia GPU Operator and the OpenShift AI operator pod status. These may not quite be done yet but the DA will finish. If the Schematics workspace fails, try running it again before jumping to bug investigation. See the bottom of this ReadMe for ways to validate proper operator installation.
 
 ## Created Resources

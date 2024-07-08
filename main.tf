@@ -112,7 +112,8 @@ locals {
   # helm release name
   helm_release_name_nfd_instance = local.chart_path_nfd_instance
   # nfd instance image name
-  nfd_image_name = var.ocp-version == "4.15" ? "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9@sha256:0f7b6eff43ff938a9cb84ca37c75fcefd8c9460d410963085fac5fafd3a6143b" : "registry.redhat.io/openshift4/ose-node-feature-discovery:v${var.ocp-version}"
+  nfd_image_name = var.ocp-version == "4.15" ? "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v${var.ocp-version}" : "registry.redhat.io/openshift4/ose-node-feature-discovery:v${var.ocp-version}"
+
 
 ###############################
 # GPU operator locals
@@ -192,7 +193,7 @@ module "ocp_base" {
   worker_pools                        = local.worker_pools
   ocp_entitlement                     = null
   disable_outbound_traffic_protection = true
-  #operating_system                    = var.ocp-version == "4.15" ? "RHCOS" : null
+  operating_system                    = var.ocp-version == "4.15" ? "RHCOS" : null
   use_existing_cos                    = data.external.resource_data.result.create_cos == "false" ? true : false
   existing_cos_id                     = data.external.resource_data.result.create_cos == "false" ? data.ibm_resource_instance.cos_instance[0].id : null
   cos_name                            = var.cos-instance == null ? "rhoai-cos-instance" : var.cos-instance
@@ -247,7 +248,7 @@ resource "helm_release" "pipelines_operator" {
   }
 
   provisioner "local-exec" {
-    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_pipeline_operator} ${local.pipeline_operator_namespace} 'wait'"
+    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_pipeline_operator} ${local.pipeline_operator_namespace} 'wait' ''"
     interpreter = ["/bin/bash", "-c"]
     environment = {
       KUBECONFIG = local.kubeconfig
@@ -286,7 +287,7 @@ resource "helm_release" "nfd_operator" {
   }
 
   provisioner "local-exec" {
-    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_nfd_operator} ${local.nfd_operator_namespace} 'wait'"
+    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_nfd_operator} ${local.nfd_operator_namespace} 'wait' ''"
     interpreter = ["/bin/bash", "-c"]
     environment = {
       KUBECONFIG = local.kubeconfig
@@ -335,7 +336,7 @@ resource "helm_release" "nfd_instance" {
 # Collect GPU operator data from the OperatorHub catalog
 ##############################################################################
 data "external" "gpu_operator_data" {
-  depends_on = [time_sleep.wait]
+  depends_on = [helm_release.nfd_instance]
   program    = ["bash", "${path.module}/scripts/get-gpu-operator-data.sh"]
 }
 
@@ -380,7 +381,7 @@ resource "helm_release" "gpu_operator" {
   }
 
   provisioner "local-exec" {
-    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_gpu_operator} ${local.gpu_operator_namespace} 'approve'"
+    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_gpu_operator} ${local.gpu_operator_namespace} 'approve' '${path.module}/chart/${local.chart_path_cluster_policy}/templates'"
     interpreter = ["/bin/bash", "-c"]
     environment = {
       KUBECONFIG = local.kubeconfig
@@ -437,7 +438,7 @@ resource "helm_release" "rhods_operator" {
   }
 
   provisioner "local-exec" {
-    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_rhods_operator} ${local.rhods_operator_namespace} 'wait'"
+    command     = "${path.module}/scripts/approve-install-plan.sh ${local.subscription_name_rhods_operator} ${local.rhods_operator_namespace} 'wait' ''"
     interpreter = ["/bin/bash", "-c"]
     environment = {
       KUBECONFIG = local.kubeconfig
