@@ -106,3 +106,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
   * Changed to fetch the cluster policy yaml
 ### Fixed
+
+## 3.0.7 - 2024-07-24
+### Added
+### Changed
+  * Created second worker pool to separate GPUs into their own
+### Fixed

@@ -180,7 +180,7 @@
                         {
                             "key": "number-gpu-nodes",
                             "type": "number",
-                            "default_value": 2,
+                            "default_value": 1,
                             "required": true
                         },
                         {

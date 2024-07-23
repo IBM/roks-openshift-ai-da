@@ -12,11 +12,11 @@ You must provide a target region and zone for all of the vpc resources created. 
 ibmcloud regions
 ibmcloud is zones
 ```
-You must provide the machine-type of the cluster worker node. This requires that you choose a machine-type that exists in the specified zone in the region you select. For example, if you want to create a cluster with L4 GPUs, you must make sure you select a region that has an L4 GPU flavor in the selected zone of the selected region. If for example you select the Toronto MZR, you can execute this command to see the list of flavors available in the first zone in the Toronto MZR:
+The cluster created will have two worker pools. A default worker pool will be created with two `bx2.4x16` workers. This allows you to run any application pod on nodes other than your GPU nodes to keep workloads from taking up space on your GPU worker(s). A second GPU worker pool will also be created based on the worker type and quantity you specify as inputs. You must provide the GPU machine-type of the GPU worker node. This requires that you choose a machine-type that exists in the specified zone in the region you select. For example, if you want to create a pool with L4 GPUs, you must make sure you select a region that has an L4 GPU flavor in the selected zone of the selected region. If for example you select the Toronto MZR, you can execute this command to see the list of flavors available in the first zone in the Toronto MZR:
 ```
 ibmcloud ks flavors --provider vpc-gen2 --zone ca-tor-1
 ```
-And you will see that there are 3 L4 flavors in that zone - gx3.16x80.l4, gx3.32x160.2l4, and gx3.64x320.4l4. You would supply one of these as the value for the machine-type input variable and provide ca-tor as the value for the region. Also ensure you understand the cost of 2 of these worker nodes by consulting the IBM Cloud portal.
+And you will see that there are 3 L4 flavors in that zone - gx3.16x80.l4, gx3.32x160.2l4, and gx3.64x320.4l4. You would supply one of these as the value for the machine-type input variable and provide ca-tor as the value for the region. Also ensure you understand the cost of this worker profile by consulting the IBM Cloud portal.
 <br/><br/>
 OpenShift on IBM Cloud uses an IBM Cloud Object Storage bucket as the storage backing for its internal registry. The provisioning process creates a bucket in the provided COS instance. Provide the name of an existing IBM Cloud Object Storage instance that you want to use. If you don't provide an instance name, one will be created for you.
 <br/><br/>
@@ -75,7 +75,7 @@ You need the following permissions to run this module.
 | cluster-name | Name of the target or new IBM Cloud OpenShift Cluster | `string` | none | yes |
 | region | IBM Cloud region. Use 'ibmcloud regions' to get the list | `string` | none | yes |
 | zone | The availability zone in the selected region. Values are 1, 2, or 3 | `number` | 1 | yes |
-| number-gpu-nodes | The number of GPU nodes expected to be found or to create in the cluster | `number` | 2 | yes |
+| number-gpu-nodes | The number of GPU nodes expected to be found or to create in the cluster | `number` | 1 | yes |
 | ocp-version | Major.minor version of the OCP cluster to provision | `string` | none | yes |
 | machine-type | Worker node machine type. Should be a GPU flavor. Use 'ibmcloud ks flavors --zone <zone>' to retrieve the list.| `string` | none | yes |
 | cos-instance | A COS service instance where a bucket will be provisioned to back the internal registry. You have 3 choices. If you leave this blank, a new COS instance will be created for you named `rhoai-cos-instance`. If you specify the name of a COS instance that already exists, it will be used. Or a new instance will be provided for the name you provide. | `string` | none | no |
@@ -89,7 +89,7 @@ You need the following permissions to run this module.
 cluster-name = "torgpu"
 region = "ca-tor"
 zone = 1
-number-gpu-nodes = 2
+number-gpu-nodes = 1
 ocp-version = "4.15"
 machine-type = "gx3.16x80.l4"
 # optional inputs
