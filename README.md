@@ -1,7 +1,5 @@
 # OpenShift AI on IBM Cloud
-The repository holds the terraform code for the OpenShift AI on IBM Cloud Deployable Architecture
-
-The goal of this Deployable Architecture is to quickly create an environment to get hands on with Red Hat OpenShift AI using an OpenShift cluster in IBM Cloud. The DA itself will create a simple 1 zone cluster for the user. The DA will then install the OpenShift AI stack.
+The goal of this Deployable Architecture is to quickly create an environment to get hands on Red Hat OpenShift AI using an OpenShift cluster in IBM Cloud. The resources created are simple and concerns like high availability, observability, and security are not taken into account. Again, the goal is to quickly go from zero to a ready and usable Red Hat OpenShift cluster with OpenShift AI installed.
 <br/><br/>
 Red Hat OpenShift AI licensing is done outside of this DA. You must acquire a Red Hat OpenShift AI license from Red Hat if you plan on using the resulting cluster for more than just exploration.
 <br/><br/>

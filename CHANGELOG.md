@@ -112,3 +112,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
   * Created second worker pool to separate GPUs into their own
 ### Fixed
+
+## 3.0.8 - 2024-07-26
+### Added
+### Changed
+  * Utilize resource group and VPC modules
+### Fixed

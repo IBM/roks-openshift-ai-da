@@ -12,14 +12,11 @@ data "external" "resource_data" {
 ########################################################################################################################
 # Resource Group
 ########################################################################################################################
-resource "ibm_resource_group" "res_group" {
-  count = data.external.resource_data.result.create_rg == "true" ? 1 : 0
-  name  = var.resource-group == null ? "rhoai-resource-group" : var.resource-group
-}
-
-data "ibm_resource_group" "resource_group" {
-  count = data.external.resource_data.result.create_rg == "false" ? 1 : 0
-  name  = var.resource-group
+module "resource_group" {
+  source                       = "terraform-ibm-modules/resource-group/ibm"
+  version                      = "1.1.6"
+  resource_group_name          = data.external.resource_data.result.create_rg == "true" ? (var.resource-group == null ? "rhoai-resource-group" : var.resource-group) : null
+  existing_resource_group_name = data.external.resource_data.result.create_rg == "false" ? var.resource-group : null
 }
 
 ##############################################################################
@@ -33,40 +30,22 @@ data "ibm_resource_instance" "cos_instance" {
 
 ########################################################################################################################
 # VPC + Subnet + Public Gateway
-#
-# NOTE: This is a very simple VPC with single subnet in a single zone with a public gateway enabled, that will allow
-# all traffic ingress/egress by default.
-# For production use cases this would need to be enhanced by adding more subnets and zones for resiliency, and
-# ACLs/Security Groups for network security.
 ########################################################################################################################
-
-resource "ibm_is_vpc" "vpc" {
-  name                      = "rhoai-vpc"
-  resource_group            = local.resource_group
-  address_prefix_management = "auto"
+module "slz_vpc" {
+  source              = "terraform-ibm-modules/landing-zone-vpc/ibm"
+  version             = "7.19.0"
+  region              = var.region
+  resource_group_id   = module.resource_group.resource_group_id
+  name                = "rhoai-vpc"
+  subnets             = local.subnets
+  network_acls        = [local.network-acl]
+  use_public_gateways = local.gateways
 }
-
-resource "ibm_is_public_gateway" "gateway" {
-  name           = "rhoai-gateway"
-  vpc            = ibm_is_vpc.vpc.id
-  resource_group = local.resource_group
-  zone           = "${var.region}-${var.zone}"
-}
-
-resource "ibm_is_subnet" "subnet_zone" {
-  name                     = "rhoai-subnet"
-  vpc                      = ibm_is_vpc.vpc.id
-  resource_group           = local.resource_group
-  zone                     = "${var.region}-${var.zone}"
-  total_ipv4_address_count = 256
-  public_gateway           = ibm_is_public_gateway.gateway.id
-}
-
 
 locals {
 
   kubeconfig = data.ibm_container_cluster_config.da_cluster_config.config_file_path
-  resource_group = data.external.resource_data.result.create_rg == "true" ? ibm_resource_group.res_group[0].id : data.ibm_resource_group.resource_group[0].id
+  resource_group = module.resource_group.resource_group_id
   #operating_system = var.ocp-version == "4.15" ? "RHCOS" : null
   operating_system = null
 
@@ -131,42 +110,56 @@ locals {
   # helm release name
   helm_release_name_cluster_policy = local.chart_path_cluster_policy
 
-  cluster_vpc_subnets = {
-    default = [
+  subnet = {
+    name           = "rhoai-subnet"
+    cidr           = "10.10.10.0/24"
+    public_gateway = true
+    acl_name       = "rhoai-acl"
+  }
+
+  network-acl = {
+    name = "rhoai-acl"
+    add_ibm_cloud_internal_rules = false
+    add_vpc_connectivity_rules   = false
+    prepend_ibm_rules            = false
+    rules = [ {
+        name        = "rhoai-inbound"
+        action      = "allow"
+        source      = "0.0.0.0/0"
+        destination = "0.0.0.0/0"
+        direction   = "inbound"
+      },
       {
-        id         = ibm_is_subnet.subnet_zone.id
-        cidr_block = ibm_is_subnet.subnet_zone.ipv4_cidr_block
-        zone       = ibm_is_subnet.subnet_zone.zone
+        name        = "rhoai-outbound"
+        action      = "allow"
+        source      = "0.0.0.0/0"
+        destination = "0.0.0.0/0"
+        direction   = "outbound"
       }
     ]
   }
 
-  worker_pool_1 = [
-    {
-      subnet_prefix    = "default"
-      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
-      machine_type     = "worker-type"
-      workers_per_zone = 2
-    }
-  ]
+  subnets = {
+    zone-1 = var.zone == 1 ? [local.subnet] : []
+    zone-2 = var.zone == 2 ? [local.subnet] : []
+    zone-3 = var.zone == 3 ? [local.subnet] : []
+  }
 
-  worker_pool_2 = [
-    {
-      subnet_prefix    = "default"
-      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
-      machine_type     = "worker-type"
-      workers_per_zone = 2
-    }
-  ]
+  gateways = {
+    zone-1 = var.zone == 1 ? true : false
+    zone-2 = var.zone == 2 ? true : false
+    zone-3 = var.zone == 3 ? true : false
+  }
 
-  worker_pool_3 = [
-    {
-      subnet_prefix    = "default"
-      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
-      machine_type     = "worker-type"
-      workers_per_zone = 2
-    }
-  ]
+  cluster_vpc_subnets = {
+    default = [
+      {
+        id         = module.slz_vpc.subnet_zone_list[0].id
+        cidr_block = module.slz_vpc.subnet_zone_list[0].cidr
+        zone       = module.slz_vpc.subnet_zone_list[0].zone
+      }
+    ]
+  }
 
   worker_pools = [
        {
@@ -197,7 +190,7 @@ module "ocp_base" {
   tags                                = ["createdby:RHOAI-DA"]
   cluster_name                        = var.cluster-name
   force_delete_storage                = true
-  vpc_id                              = ibm_is_vpc.vpc.id
+  vpc_id                              = module.slz_vpc.vpc_id
   vpc_subnets                         = local.cluster_vpc_subnets
   ocp_version                         = var.ocp-version
   worker_pools                        = local.worker_pools
@@ -221,18 +214,10 @@ data "ibm_container_cluster_config" "da_cluster_config" {
 }
 
 ##############################################################################
-# Delay after the cluster creation to let things settle
-##############################################################################
-resource "time_sleep" "wait" {
-  depends_on      = [data.ibm_container_cluster_config.da_cluster_config]
-  create_duration = "120s"
-}
-
-##############################################################################
 # Install the Pipelines operator if requested by the user
 ##############################################################################
 resource "helm_release" "pipelines_operator" {
-  depends_on = [time_sleep.wait]
+  depends_on = [module.ocp_base]
 
   name              = local.helm_release_name_pipeline_operator
   chart             = "${path.module}/chart/${local.chart_path_pipeline_operator}"
@@ -271,7 +256,7 @@ resource "helm_release" "pipelines_operator" {
 # (will start at the same time as the pipelines operator if enabled)
 ##############################################################################
 resource "helm_release" "nfd_operator" {
-  depends_on = [time_sleep.wait]
+  depends_on = [module.ocp_base]
 
   name              = local.helm_release_name_nfd_operator
   chart             = "${path.module}/chart/${local.chart_path_nfd_operator}"
