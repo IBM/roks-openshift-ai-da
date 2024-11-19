@@ -206,6 +206,7 @@
                         {
                             "key": "machine-type",
                             "type": "string",
+                            "default_value": "gx3.16x80.l4",
                             "required": true,
                             "options": [
                                 {
