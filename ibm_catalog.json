@@ -186,7 +186,7 @@
                         {
                             "key": "ocp-version",
                             "type": "string",
-                            "default_value": "4.15",
+                            "default_value": "4.16",
                             "required": true,
                             "options": [
                                 {
@@ -196,13 +196,43 @@
                                 {
                                     "displayname": "4.15",
                                     "value": "4.15"
+                                },
+                                {
+                                    "displayname": "4.16",
+                                    "value": "4.16"
                                 }
                             ]
                         },
                         {
                             "key": "machine-type",
                             "type": "string",
-                            "required": true
+                            "required": true,
+                            "options": [
+                                {
+                                    "displayname": "gx3.16x80.l4",
+                                    "value": "gx3.16x80.l4"
+                                },
+                                {
+                                    "displayname": "gx3.32x160.2l4",
+                                    "value": "gx3.32x160.2l4"
+                                },
+                                {
+                                    "displayname": "gx3.64x320.4l4",
+                                    "value": "gx3.64x320.4l4"
+                                },
+                                {
+                                    "displayname": "gx3.24x120.l40s",
+                                    "value": "gx3.24x120.l40s"
+                                },
+                                {
+                                    "displayname": "gx3.48x240.2l40s",
+                                    "value": "gx3.48x240.2l40s"
+                                },
+                                {
+                                    "displayname": "gx3d.160x1792.8h100",
+                                    "value": "gx3d.160x1792.8h100"
+                                }
+                            ]
                         },
                         {
                             "key": "cos-instance",

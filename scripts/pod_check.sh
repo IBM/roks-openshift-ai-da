@@ -7,6 +7,7 @@ echo "Waiting 5 minutes to let pods finish"
 sleep 300
 
 #dump all the pods in the gpu operator
+echo ""
 echo "The GPU operator pods may take up to 30 minutes to complete with many pods trying multiple times to complete successfully."
 echo "This is normal. For many of the pods there will be one for each GPU enabled worker node."
 echo "If at this point they are all not finished, check back later using the below command to get the pods"
@@ -15,11 +16,13 @@ echo "To get this list execute this command: 'kubectl get pods -n $gpu_operator_
 kubectl get pods -n $gpu_operator_namespace
 
 #dump all the pods in the rhods operator
+echo ""
 echo "Current state of pods in the $rhods_cluster_namespace namespace"
 echo "To get this list execute this command: 'kubectl get pods -n $rhods_cluster_namespace'"
 kubectl get pods -n $rhods_cluster_namespace
 
 #check the nvidia-smi output of the first nvidia_driver_daemonset pod we find
+echo ""
 echo "Checking the GPU status of each GPU worker node"
 echo "If the appropriate pods are up and running, the nvidia-smi output is provided."
 echo "If they are not ready yet, come back and run the following command:"

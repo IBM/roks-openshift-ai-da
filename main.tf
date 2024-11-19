@@ -46,8 +46,7 @@ locals {
 
   kubeconfig = data.ibm_container_cluster_config.da_cluster_config.config_file_path
   resource_group = module.resource_group.resource_group_id
-  #operating_system = var.ocp-version == "4.15" ? "RHCOS" : null
-  operating_system = null
+  operating_system = var.ocp-version == "4.14" ? "REDHAT_8_64" : "RHCOS"
 
 ###############################
 # Pipelines operator locals
@@ -92,7 +91,7 @@ locals {
   # helm release name
   helm_release_name_nfd_instance = local.chart_path_nfd_instance
   # nfd instance image name
-  nfd_image_name = var.ocp-version == "4.15" ? "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v${var.ocp-version}" : "registry.redhat.io/openshift4/ose-node-feature-discovery:v${var.ocp-version}"
+  nfd_image_name = var.ocp-version == "4.14" ? "registry.redhat.io/openshift4/ose-node-feature-discovery:v${var.ocp-version}" : "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v${var.ocp-version}"
 
 
 ###############################
@@ -157,24 +156,30 @@ locals {
         id         = module.slz_vpc.subnet_zone_list[0].id
         cidr_block = module.slz_vpc.subnet_zone_list[0].cidr
         zone       = module.slz_vpc.subnet_zone_list[0].zone
-      }
-    ]
+      } ],
+      gpu = [
+      {
+        id         = module.slz_vpc.subnet_zone_list[0].id
+        cidr_block = module.slz_vpc.subnet_zone_list[0].cidr
+        zone       = module.slz_vpc.subnet_zone_list[0].zone
+      } ]
   }
 
   worker_pools = [
-       {
-      subnet_prefix    = "default"
-      pool_name        = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
-      machine_type     = "bx2.4x16"
-      operating_system = local.operating_system
-      workers_per_zone = 2
+    {
+      subnet_prefix     = "default"
+      pool_name         = "default" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
+      machine_type      = "bx2.4x16"
+      operating_system  = local.operating_system
+      workers_per_zone  = 2
     },
     {
-      subnet_prefix    = "default"
-      pool_name        = "GPU" # ibm_container_vpc_cluster automatically names default pool "default" (See https://github.com/IBM-Cloud/terraform-provider-ibm/issues/2849)
-      machine_type     = var.machine-type
-      operating_system = local.operating_system
-      workers_per_zone = var.number-gpu-nodes
+      subnet_prefix     = "gpu"
+      pool_name         = "GPU"
+      machine_type      = var.machine-type
+      operating_system  = local.operating_system
+      workers_per_zone  = var.number-gpu-nodes
+      secondary_storage = "300gb.5iops-tier"
     }
   ]
 }
@@ -184,7 +189,7 @@ locals {
 ##############################################################################
 module "ocp_base" {
   source                              = "terraform-ibm-modules/base-ocp-vpc/ibm"
-  version                             = "3.28.1"
+  version                             = "3.35.3"
   resource_group_id                   = local.resource_group
   region                              = var.region
   tags                                = ["createdby:RHOAI-DA"]
@@ -196,7 +201,6 @@ module "ocp_base" {
   worker_pools                        = local.worker_pools
   ocp_entitlement                     = null
   disable_outbound_traffic_protection = true
-  operating_system                    = local.operating_system
   use_existing_cos                    = data.external.resource_data.result.create_cos == "false" ? true : false
   existing_cos_id                     = data.external.resource_data.result.create_cos == "false" ? data.ibm_resource_instance.cos_instance[0].id : null
   cos_name                            = var.cos-instance == null ? "rhoai-cos-instance" : var.cos-instance

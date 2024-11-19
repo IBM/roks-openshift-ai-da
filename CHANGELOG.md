@@ -118,3 +118,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
   * Utilize resource group and VPC modules
 ### Fixed
+
+## 3.0.9 - 2024-07-26
+### Added
+### Changed
+  * Added OCP 4.16, moved to RHCOS, and updated available GPU worker types
+### Fixed
