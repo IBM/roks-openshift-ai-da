@@ -124,3 +124,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
   * Added OCP 4.16, moved to RHCOS, and updated available GPU worker types
 ### Fixed
+
+## 4.0.0 - 2024-12-19
+### Added
+  * Call the paid OpenShift AI add-on instead of installing the operators
+### Changed
+### Fixed

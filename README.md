@@ -1,7 +1,7 @@
 # OpenShift AI on IBM Cloud
 The goal of this Deployable Architecture is to quickly create an environment to get hands on Red Hat OpenShift AI using an OpenShift cluster in IBM Cloud. The resources created are simple and concerns like high availability, observability, and security are not taken into account. Again, the goal is to quickly go from zero to a ready and usable Red Hat OpenShift cluster with OpenShift AI installed.
 <br/><br/>
-Red Hat OpenShift AI licensing is done outside of this DA. You must acquire a Red Hat OpenShift AI license from Red Hat if you plan on using the resulting cluster for more than just exploration.
+This Deployable Architecture calls the OpenShift AI add-on to install the Red Hat OpenShift AI operator and all its dependencies. You will be charged for the use of the cluster and OpenShift AI in your IBM Cloud bill.
 <br/><br/>
 As mentioned above, the cluster that will be created will be a single zone cluster. It will be created in the specified zone in the region selected. A new VPC is created with a new default subnet created in the specified zone. Attached to that subnet is a public gatway. The cluster is created in this new VPC.
 <br/><br/>
@@ -10,7 +10,7 @@ You must provide a target region and zone for all of the vpc resources created. 
 ibmcloud regions
 ibmcloud is zones
 ```
-The cluster created will have two worker pools. A default worker pool will be created with two `bx2.4x16` workers. This allows you to run any application pod on nodes other than your GPU nodes to keep workloads from taking up space on your GPU worker(s). A second GPU worker pool will also be created based on the worker type and quantity you specify as inputs. You must provide the GPU machine-type of the GPU worker node. This requires that you choose a machine-type that exists in the specified zone in the region you select. For example, if you want to create a pool with L4 GPUs, you must make sure you select a region that has an L4 GPU flavor in the selected zone of the selected region. If for example you select the Toronto MZR, you can execute this command to see the list of flavors available in the first zone in the Toronto MZR:
+The cluster created will have two worker pools. A default worker pool will be created with two `bx2.8x32` workers. This allows you to run any application pod on nodes other than your GPU nodes to keep workloads from taking up space on your GPU worker(s). A second GPU worker pool will also be created based on the worker type and quantity you specify as inputs. You must provide the GPU machine-type of the GPU worker node. This requires that you choose a machine-type that exists in the specified zone in the region you select. For example, if you want to create a pool with L4 GPUs, you must make sure you select a region that has an L4 GPU flavor in the selected zone of the selected region. If for example you select the Toronto MZR, you can execute this command to see the list of flavors available in the first zone in the Toronto MZR:
 ```
 ibmcloud ks flavors --provider vpc-gen2 --zone ca-tor-1
 ```
@@ -20,8 +20,6 @@ OpenShift on IBM Cloud uses an IBM Cloud Object Storage bucket as the storage ba
 <br/><br/>
 If you choose OpenShift 4.15 or greater, Red Hat CoreOS will be specified as the worker node operating system.
 <br/><br/>
-This DA can be a bit inconsistent as it relies on the fact that the cluster is in the proper state to repond to the installation of operators. The terraform will wait for the cluster to be ready with the Ingress in a ready state, but things like the OperatorHub and its pods must also be ready. Sometimes the Schematics workspace will fail due to the cluster not quite being ready even though the status says it is. Also, the last step in the installation is an attempt to show the Nvidia GPU Operator and the OpenShift AI operator pod status. These may not quite be done yet but the DA will finish. If the Schematics workspace fails, try running it again before jumping to bug investigation. See the bottom of this ReadMe for ways to validate proper operator installation.
-
 ## Created Resources
 The following items will get created:
 1. A resource group if you don't provide the name of an existing one (default value is `rhoai-resource-group`)
@@ -30,16 +28,6 @@ The following items will get created:
 4. A vpc named `rhoai-vpc` containing the above subnet and public gateway in the resource group
 5. A COS instance if you don't provide the name of an existing one (default value is `rhoai-cos-instance`)
 6. A single zone cluster in the created subnet and vpc with the user specified number of workers in the resource group. The cluster does not have logging, monitoring, secrets manager, or encryption attached at all. It will be publicly accessible.
-
-This rest of the Terraform script will deploy the Operators necessary for the Red Hat OpenShift AI functionality to the new cluster. The following Operators and their corresponding components are deployed.
-
-1. Red Hat Pipelines Operator - Incorporate Tekton pipelines into your AI work
-2. Red Hat Node Discovery Feature Operator
-    - Node Discovery Feature instance - this instance actually does the work of labeling nodes
-3. Nvidia GPU Operator
-    - Cluster Policy instance - this instance installs the GPU stack of daemonsets and pods
-4. Red Hat OpenShift AI Operator
-    - OpenShift AI instance - this instance installs the components
 
 ## Required IAM access policies
 You need the following permissions to run this module.
@@ -62,7 +50,6 @@ You need the following permissions to run this module.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0, <1.7.0 |
-| <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.8.0 |
 | <a name="requirement_ibm"></a> [ibm](#requirement\_ibm) | >= 1.59.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.16.1 |
 

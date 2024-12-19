@@ -3,13 +3,6 @@ provider "ibm" {
   region           = var.region
 }
 
-provider "helm" {
-  kubernetes {
-    host  = data.ibm_container_cluster_config.da_cluster_config.host
-    token = data.ibm_container_cluster_config.da_cluster_config.token
-  }
-}
-
 provider "kubernetes" {
   host  = data.ibm_container_cluster_config.da_cluster_config.host
   token = data.ibm_container_cluster_config.da_cluster_config.token

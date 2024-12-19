@@ -1,7 +1,0 @@
-# Default values for openshift-pipelines.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-operators:
-  namespace:
-  subscription_name:
