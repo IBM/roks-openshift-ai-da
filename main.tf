@@ -46,7 +46,7 @@ locals {
 
   kubeconfig = data.ibm_container_cluster_config.da_cluster_config.config_file_path
   resource_group = module.resource_group.resource_group_id
-  operating_system = var.ocp-version == "4.14" ? "REDHAT_8_64" : "RHCOS"
+  operating_system = "RHCOS"
 
   subnet = {
     name           = "rhoai-subnet"
@@ -130,7 +130,7 @@ locals {
 ##############################################################################
 module "ocp_base" {
   source                              = "terraform-ibm-modules/base-ocp-vpc/ibm"
-  version                             = "3.35.8"
+  version                             = "3.37.2"
   resource_group_id                   = local.resource_group
   region                              = var.region
   tags                                = ["createdby:RHOAI-DA"]

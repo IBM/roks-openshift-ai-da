@@ -130,3 +130,9 @@ All notable changes to this project will be documented in this file.
   * Call the paid OpenShift AI add-on instead of installing the operators
 ### Changed
 ### Fixed
+
+## 4.0.1 - 2025-01-22
+### Added
+### Changed
+  * Updated allowed OCP versions to only 4.16 and 4.17
+### Fixed

@@ -74,8 +74,8 @@ You need the following permissions to run this module.
 cluster-name = "torgpu"
 region = "ca-tor"
 zone = 1
-number-gpu-nodes = 1
-ocp-version = "4.15"
+number-gpu-nodes = 2
+ocp-version = "4.16"
 machine-type = "gx3.16x80.l4"
 # optional inputs
 cos-instance = "my-COS-instance"
