@@ -23,8 +23,8 @@
                 "ocp",
                 "OpenShift"
             ],
-            "short_description": "Deploys the Red Hat OpenShift AI operator and its pre-requisites into an OpenShift on IBM Cloud cluster with GPU worker nodes.",
-            "long_description": "Deploy the Red Hat OpenShift AI operator and all of its pre-requisites including the Node Feature Discovery operator and the GPU operator into a new OpenShift cluster.",
+            "short_description": "Deploys the Red Hat OpenShift AI add-on into an OpenShift on IBM Cloud cluster with GPU worker nodes.",
+            "long_description": "Deploys the Red Hat OpenShift AI add-on into an OpenShift on IBM Cloud cluster with GPU worker nodes.",
             "offering_docs_url": "https://github.com/IBM/roks-openshift-ai-da/blob/main/README.md",
             "offering_icon_url": "https://raw.githubusercontent.com/terraform-ibm-modules/documentation/main/icons/RH_OpenShift.svg",
             "provider_name": "IBM",
@@ -63,16 +63,16 @@
 								"description": "Yes"
 							},
 							{
-								"title": "New OpenShift cluster with GPU worker nodes",
+								"title": "New OpenShift cluster standard worker pool and GPU worker pool",
 								"description": "Yes"
 							},
 							{
-								"title": "Installed and configured Pipelines, Node Feature Discovery, and GPU operators",
+								"title": "Installed Red Hat OpenShift AI add-on. This includes all the pre-requisite operators and the OpenShift AI operator.",
 								"description": "Yes"
 							},
 							{
-								"title": "Installed Red Hat OpenShift AI operator",
-								"description": "Yes"
+								"title": "Note - DA estimate",
+								"description": "The DA estimate shown to the right is just an example. Your actual cost will depend on the GPU node types that you select. OpenShift AI also has a cost which is not reflected in the estimate."
 							}
 						],
                         "diagrams": [
@@ -186,7 +186,7 @@
                         {
                             "key": "ocp-version",
                             "type": "string",
-                            "default_value": "4.16",
+                            "default_value": "4.17",
                             "required": true,
                             "options": [
                                 {
@@ -228,6 +228,10 @@
                                 {
                                     "displayname": "gx3d.160x1792.8h100",
                                     "value": "gx3d.160x1792.8h100"
+                                },
+                                {
+                                    "displayname": "gx3d.160x1792.8h200",
+                                    "value": "gx3d.160x1792.8h200"
                                 }
                             ]
                         },
